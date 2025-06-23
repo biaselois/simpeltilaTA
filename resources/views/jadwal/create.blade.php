@@ -10,8 +10,10 @@
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Buat Jadwal</li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('dashboard') }}">Home</a>
+                            </li>
+                            <li class="breadcrumb-item active breadcrumb-active">Buat Jadwal</li>
                         </ol>
                     </div>
                 </div>
@@ -116,6 +118,27 @@
 @push('styles')
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        .select2-results__option--highlighted {
+            background-color: #007bff !important;
+            /* Warna biru */
+            color: #ffffff !important;
+            /* Warna teks putih */
+        }
+
+        .select2-selection__choice {
+            background-color: #e0e0e0;
+            /* Ubah jika mau */
+            color: #000000 !important;
+            /* Teks jadi hitam biar lebih jelas */
+            border: 1px solid #ccc;
+        }
+
+        .select2-selection__placeholder {
+            color: #6c757d;
+        }
+    </style>
 @endpush
 
 @push('scripts')

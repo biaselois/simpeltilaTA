@@ -96,7 +96,7 @@
 
     <p>
         Berdasarkan Permohonan Pelayanan dengan Nomor {{ $data->jadwal->permohonan->nomordokumen ?? '-' }} tanggal :
-        {{ $data->tanggal ?? '-' }}, <br>
+        {{ $data->tanggal_formatted?? '-' }}, <br>
         kami telah melakukan penelitian/pemeriksaan terhadap objek pajak/kondisi wajib pajak :
     </p>
 

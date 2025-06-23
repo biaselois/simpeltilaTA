@@ -10,13 +10,33 @@ use App\Models\User;
 class JadwalController extends Controller
 {
     // Tampilkan semua jadwal
-    public function index()
+    public function index(Request $request)
     {
-        $data = Jadwal::with('permohonan', 'petugas')->get();
+          $user = auth()->user();
+          $data = Jadwal::with('permohonan', 'petugas')->get();
+          $query = Jadwal::with(['permohonan', 'petugas']);
+
+    if ($user->role == 'petugas') {
+        $query->where('status', 'menunggu')
+              ->whereHas('petugas', function ($q) use ($user) {
+        $q->where('users.id', $user->id);               });
+    }
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        $query->whereBetween('tanggal_tinjau', [$request->start_date, $request->end_date]);
+    }
+
+    if ($request->filled('search')) {
+        $query->whereHas('permohonan', function ($q) use ($request) {
+            $q->where('nama_wp', 'like', '%' . $request->search . '%')
+              ->orWhere('nop', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    $data = $query->orderByDesc('tanggal_tinjau')->get();
+
         return view('jadwal.index', compact('data'));
     }
 
-    // Tampilkan form untuk tambah jadwal
    public function create(Request $request)
 {
     $permohonans = Permohonan::all();
@@ -26,7 +46,6 @@ class JadwalController extends Controller
 }
 
 
-    // Simpan data jadwal baru
     public function store(Request $request)
     {
         $request->validate([
@@ -38,7 +57,7 @@ class JadwalController extends Controller
         ]);
 
         // Simpan data utama jadwal
-        $permohonan = \App\Models\Permohonan::findOrFail($request->permohonan_id);
+        $permohonan = Permohonan::findOrFail($request->permohonan_id);
 
         $jadwal = Jadwal::create([
             'permohonan_id' => $request->permohonan_id,
@@ -46,7 +65,6 @@ class JadwalController extends Controller
             'lokasi' => $permohonan->alamat_objek,
         ]);
 
-        // Simpan relasi ke tabel pivot
         $jadwal->petugas()->attach($request->petugas_id);
         $permohonan = Permohonan::find($request->permohonan_id);
         $permohonan->status = 'Dijadwalkan';

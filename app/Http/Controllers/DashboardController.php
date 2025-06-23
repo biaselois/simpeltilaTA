@@ -10,14 +10,20 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-   public function index()
+   public function index(Request $request)
 {
+    $tahunDipilih = $request->get('tahun', now()->year);
     $jumlahPermohonan = Permohonan::count();
     $jumlahJadwal = Jadwal::count();
     $jumlahBeritaAcara = BeritaAcara::count();
     $jumlahUser = User::count();
     $jumlahUser = User::where('role', 'petugas')->count();
     $jadwalMenunggu = Jadwal::with('petugas')->where('status', 'menunggu')->get();
+
+      $tahunList = Jadwal::selectRaw('YEAR(tanggal_tinjau) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
 
      $dataPerBulan = Jadwal::selectRaw('MONTH(tanggal_tinjau) as bulan, COUNT(*) as total')
         ->where('status', 'Selesai')
@@ -35,7 +41,9 @@ class DashboardController extends Controller
         'jumlahBeritaAcara',
         'jumlahUser',
         'jadwalMenunggu',
-        'dataGrafik'
+        'dataGrafik',
+        'tahunList',
+        'tahunDipilih',
     ));
 }
 }

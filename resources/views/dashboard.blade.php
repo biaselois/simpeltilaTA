@@ -94,13 +94,28 @@
                 <div class="row">
                 </div>
                 <div class="card mb-2">
-                        <div class="card-header">Grafik Kegiatan Per <b>Bulan</b></div>
-                        <div class="card-body">
-                            <div style="width: 900px; height: 600px;">
-                                <canvas id="chartKegiatan"></canvas>
-                            </div>
-                        </div>
-                    </div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>Grafik Kegiatan Per <b>Bulan</b></div>
+        <div>
+            <form method="GET" action="{{ route('dashboard') }}" class="mb-0">
+                <label for="tahun">Tahun:</label>
+                <select name="tahun" id="tahun" onchange="this.form.submit()" class="form-control d-inline-block w-auto ml-2">
+                    @foreach ($tahunList as $tahun)
+                        <option value="{{ $tahun }}" {{ $tahun == $tahunDipilih ? 'selected' : '' }}>
+                            {{ $tahun }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+        </div>
+    </div>
+    <div class="card-body">
+        <div style="width: 900px; height: 600px;">
+            <canvas id="chartKegiatan"></canvas>
+        </div>
+    </div>
+</div>
+
                 <div class="card mt-4">
                     <div class="card-header">
                         Jadwal Tinjau Lapang

@@ -10,8 +10,10 @@
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Jadwal</li>
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('dashboard') }}">Home</a>
+                            </li>
+                            <li class="breadcrumb-item active breadcrumb-active"> Jadwal</li>
                         </ol>
                     </div>
                 </div>
@@ -21,6 +23,30 @@
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
+
+                    <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+                        @if (auth()->user()->role == 'kasi')
+                            <form action="{{ route('jadwal.index') }}" method="GET" class="form-inline">
+                                <input type="date" name="start_date" class="form-control mr-2"
+                                    value="{{ request('start_date') }}">
+                                <input type="date" name="end_date" class="form-control mr-2"
+                                    value="{{ request('end_date') }}">
+                                <button type="submit" class="btn btn-success">Tampilkan</button>
+                            </form>
+                        @endif
+
+                        <form action="{{ route('jadwal.index') }}" method="GET" class="form-inline ml-auto">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control"
+                                    placeholder="Cari Nama WP atau NOP..." value="{{ request('search') }}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit">Cari</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+
                     <div class="col-12">
                         {{-- @if (auth()->user()->role == 'kasi')
                             <a href="{{ route('jadwal.create') }}" class="btn btn-primary mb-3">Buat Jadwal</a>

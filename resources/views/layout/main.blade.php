@@ -87,9 +87,9 @@
               <i class="fas fa-chevron-down ml-1"></i>
             </a>
             <div class="dropdown-menu dropdown-menu-right shadow-sm" style="min-width: 160px; border-radius: 10px;">
-              <a href="{{ route('profile.update') }}" class="dropdown-item d-flex align-items-center">
+              {{-- <a href="{{ route('profile.update') }}" class="dropdown-item d-flex align-items-center">
                 <i class="fas fa-user mr-2"></i> Profile
-              </a>
+              </a> --}}
               <div class="dropdown-divider"></div>
               <a href="{{ route('logout') }}"
    class="dropdown-item d-flex align-items-center text-danger"

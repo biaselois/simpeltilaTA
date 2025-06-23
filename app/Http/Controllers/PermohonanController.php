@@ -11,19 +11,28 @@ class PermohonanController extends Controller
 {
     public function index(Request $request)
     {
+        $data =permohonan::get();
         $query = Permohonan::query();
 
-        // Pencarian data
-        if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
+       // Filter pencarian
+    if ($request->has('search') && !empty($request->search)) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('nama_wp', 'like', '%' . $search . '%')
+              ->orWhere('nop', 'like', '%' . $search . '%');
+        });
+    }
 
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_wp', 'like', '%' . $search . '%')
-                  ->orWhere('nop', 'like', '%' . $search . '%');
-            });
-        }
+    // Filter tanggal
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+    } elseif ($request->filled('start_date')) {
+        $query->whereDate('created_at', '>=', $request->start_date);
+    } elseif ($request->filled('end_date')) {
+        $query->whereDate('created_at', '<=', $request->end_date);
+    }
 
-        $data = $query->latest()->get();
+    $data = $query->latest()->get();;
         return view('permohonan.index', compact('data'));
     }
 
@@ -41,6 +50,7 @@ class PermohonanController extends Controller
             'nop'           => 'required',
             'alamat_objek'  => 'required',
             'tujuan'        => 'required',
+            'tujuan_lainnya' => 'required_if:tujuan,Lainnya',
             'dokumen'       => 'required|mimes:pdf|max:2048',
         ]);
 
@@ -48,13 +58,15 @@ class PermohonanController extends Controller
         $filename = time() . '_' . $file->getClientOriginalName();
         $file->move(public_path('dokumen'), $filename);
 
+        $tujuan = $request->tujuan === 'Lainnya' ? $request->tujuan_lainnya : $request->tujuan;
+
         Permohonan::create([
             'nomordokumen'  => $request->nomordokumen,
             'nama_wp'       => $request->nama_wp,
             'alamat_wp'     => $request->alamat_wp,
             'nop'           => $request->nop,
             'alamat_objek'  => $request->alamat_objek,
-            'tujuan'        => $request->tujuan,
+            'tujuan'        => $tujuan,
             'dokumen'       => $filename,
         ]);
 
@@ -76,7 +88,8 @@ class PermohonanController extends Controller
             'nop'           => 'required',
             'alamat_objek'  => 'required',
             'tujuan'        => 'required',
-            'dokumen'       => 'nullable|mimes:pdf|max:2048',
+            'tujuan_lainnya' => 'required_if:tujuan,Lainnya',
+            'dokumen'       => 'required|mimes:pdf|max:2048',
         ]);
 
         $data = Permohonan::findOrFail($id);
@@ -92,33 +105,32 @@ class PermohonanController extends Controller
             $file->move(public_path('dokumen'), $filename);
             $data->dokumen = $filename;
         }
+        $tujuan = $request->tujuan === 'Lainnya' ? $request->tujuan_lainnya : $request->tujuan;
 
         $data->nomordokumen  = $request->nomordokumen;
         $data->nama_wp       = $request->nama_wp;
         $data->alamat_wp     = $request->alamat_wp;
         $data->nop           = $request->nop;
         $data->alamat_objek  = $request->alamat_objek;
-        $data->tujuan        = $request->tujuan;
+        $data->tujuan        = $tujuan;
         $data->save();
 
         return redirect()->route('permohonan.index')->with('success', 'Task Created Successfully!');
     }
 
-    public function delete(Request $request, $id)
-    {
-        $data = Permohonan::find($id);
+   public function delete(Request $request, $id)
+{
+    $data = Permohonan::findOrFail($id);
 
-        if ($data) {
-            // Hapus file dokumen juga kalau perlu
-            if (file_exists(public_path('dokumen/' . $data->dokumen))) {
-                // unlink(public_path('dokumen/' . $data->dokumen));
-            }
-
-            $data->delete();
-        }
-
-        return redirect()->route('permohonan.index')->with('success', 'Data berhasil dihapus!');
+    if ($data->dokumen && file_exists(public_path('dokumen/' . $data->dokumen))) {
+        unlink(public_path('dokumen/' . $data->dokumen));
     }
+
+    $data->delete();
+
+    return redirect()->route('permohonan.index')->with('success', 'Data berhasil dihapus!');
+}
+
 
 
 public function import(Request $request)

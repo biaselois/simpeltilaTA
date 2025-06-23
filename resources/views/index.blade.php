@@ -26,21 +26,13 @@
         <!-- Small boxes (Stat box) -->
         <div class="row">
             <div class="col-12">
-                <a href="{{ route('user.create')}}" class="btn btn-primary mb-3"> Tambah Data</a>
+                <a href="{{ route('user.create')}}" class="btn btn-primary mb-3"> Tambah User</a>
               <div class="card">
                 <div class="card-header">
-                  <h3 class="card-title">Responsive Hover Table</h3>
+                  <h3 class="card-title">Tabel Tambah User</h3>
 
                   <div class="card-tools">
-                    <div class="input-group input-group-sm" style="width: 150px;">
-                      <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
 
-                      <div class="input-group-append">
-                        <button type="submit" class="btn btn-default">
-                          <i class="fas fa-search"></i>
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 </div>
                 <!-- /.card-header -->
@@ -50,7 +42,7 @@
                       <tr>
                         <th>No</th>
                         <th>Nama</th>
-                        <th>Email</th>
+                        <th>Username</th>
                         <th>Action</th>
                       </tr>
                     </thead>
@@ -59,10 +51,10 @@
                         <tr>
                             <td>{{$loop->iteration}}</td>
                             <td>{{$d->name}}</td>
-                            <td>{{$d->email}}</td>
+                            <td>{{$d->username}}</td>
                             <td>
-                                <a href="{{ route('user.edit',['id' => $d->id]) }}" class="btn btn-primary"><i class="fas fa-pen"></i>Edit</a>
-                                <a data-toggle="modal" data-target="#modal-hapus{{ $d->id }}" class="btn btn-danger"><i class="fas fa-trash-alt"></i>Hapus</a>
+                                <a href="{{ route('user.edit',['id' => $d->id]) }}" class="btn btn-primary"><i class="fas fa-pen"></i></a>
+                                <a data-toggle="modal" data-target="#modal-hapus{{ $d->id }}" class="btn btn-danger"><i class="fas fa-trash-alt"></i></a>
                             </td>
                           </tr>
                           <div class="modal fade" id="modal-hapus{{ $d->id }}">

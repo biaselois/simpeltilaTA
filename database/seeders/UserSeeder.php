@@ -16,15 +16,15 @@ class UserSeeder extends Seeder
     {
         $kasi= User::create([
             'name'  => 'Mufidah Hanum, S.H.',
-            'email' => 'hanum@gmail.com',
-             'role'  => 'kasi',
+            'username' => 'kasi12',
+            'role'  => 'kasi',
             'password' => bcrypt('12345678'),
         ]);
         $kasi->assignRole('kasi');
 
             $petugas= User::create([
             'name'  => 'Ramadhan Purba Atmaja',
-            'email' => 'romi@gmail.com',
+            'username' => 'petugas01',
             'role'  => 'petugas',
             'password' => bcrypt('12345678'),
         ]);
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
 
             $pelayanan= User::create([
             'name'  => 'Rani',
-            'email' => 'rani@gmail.com',
+            'username' => 'pelayanan01',
             'role'  => 'pelayanan',
             'password' => bcrypt('12345678'),
         ]);
@@ -40,7 +40,7 @@ class UserSeeder extends Seeder
 
         $kabid= User::create([
             'name'  => 'Mohammad Mahfud, S.Sos.',
-            'email' => 'mahfud@gmail.com',
+            'username' => 'kabid12',
             'role'  => 'kabid',
             'password' => bcrypt('12345678'),
         ]);

@@ -1,6 +1,6 @@
 @extends('layout.main')
 @section('content')
-@include('sweetalert::alert')
+    @include('sweetalert::alert')
 
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
@@ -98,6 +98,13 @@
                                         @error('tujuan')
                                             <small class="text-danger">{{ $message }}</small>
                                         @enderror
+                                        <input type="text" name="tujuan_lainnya" id="tujuan_lainnya"
+                                            class="form-control mt-2 {{ old('tujuan') === 'Lainnya' ? '' : 'd-none' }}"
+                                            placeholder="Masukkan tujuan lainnya" value="{{ old('tujuan_lainnya') }}">
+
+                                        @error('tujuan_lainnya')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
                                     </div>
 
 
@@ -121,3 +128,26 @@
         </section>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tujuanSelect = document.querySelector('select[name="tujuan"]');
+            const inputLainnya = document.getElementById('tujuan_lainnya');
+
+            function toggleInput() {
+                if (tujuanSelect.value === 'Lainnya') {
+                    inputLainnya.classList.remove('d-none');
+                    inputLainnya.required = true;
+                } else {
+                    inputLainnya.classList.add('d-none');
+                    inputLainnya.required = false;
+                    inputLainnya.value = '';
+                }
+            }
+
+            tujuanSelect.addEventListener('change', toggleInput);
+            toggleInput(); // untuk pertama kali load jika old value = "Lainnya"
+        });
+    </script>
+@endpush
