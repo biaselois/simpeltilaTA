@@ -78,8 +78,7 @@
                                                 <td>
                                                     @if ($jadwal->permohonan)
                                                         {{ $jadwal->permohonan->nomordokumen }} /
-                                                        {{ $jadwal->permohonan->nama_wp }} /
-                                                        {{ $jadwal->permohonan->tujuan }}
+                                                        {{ $jadwal->permohonan->nama_wp }}
                                                     @else
                                                         -
                                                     @endif

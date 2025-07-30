@@ -43,12 +43,10 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Nomor Dokumen</label>
-                                        <input type="text" name="nomordokumen" class="form-control"
-                                            placeholder="Masukkan Nomor Dokumen">
-                                        @error('nomordokumen')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
+                                        <input type="text" class="form-control" value="{{ $nomorSurat }}" readonly>
+                                        <input type="hidden" name="nomordokumen" value="{{ $nomorSurat }}">
                                     </div>
+
 
                                     <div class="form-group">
                                         <label>Nama WP</label>

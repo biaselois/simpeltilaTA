@@ -9,7 +9,6 @@ use App\Models\User;
 
 class JadwalController extends Controller
 {
-    // Tampilkan semua jadwal
     public function index(Request $request)
     {
           $user = auth()->user();
@@ -56,7 +55,6 @@ class JadwalController extends Controller
             'petugas_id.*' => 'exists:users,id',
         ]);
 
-        // Simpan data utama jadwal
         $permohonan = Permohonan::findOrFail($request->permohonan_id);
 
         $jadwal = Jadwal::create([
@@ -83,7 +81,6 @@ class JadwalController extends Controller
     }
     public function update(Request $request, $id)
     {
-        // Validasi input
         $request->validate([
             'permohonan_id' => 'required|exists:permohonans,id',
             'tanggal_tinjau' => 'required|date',
@@ -91,40 +88,30 @@ class JadwalController extends Controller
             'petugas_id.*' => 'exists:users,id',
         ]);
 
-        // Cari jadwal yang mau di-update
         $jadwal = Jadwal::findOrFail($id);
 
-        // Update data jadwal
         $jadwal->update([
             'permohonan_id' => $request->permohonan_id,
             'tanggal_tinjau' => $request->tanggal_tinjau,
-            // 'lokasi' => $request->lokasi, // kalau ada lokasi tinggal aktifkan
+            // 'lokasi' => $request->lokasi,
         ]);
 
-        // Update relasi pivot petugas
         $jadwal->petugas()->sync($request->petugas_id);
 
-
-
-        // Redirect dengan pesan sukses
         return redirect()->route('jadwal.index')->with('success', 'Jadwal berhasil diperbarui.');
     }
 
     public function updateStatus(Request $request, $id)
     {
-        // Validasi input status
         $request->validate([
             'status' => 'required|string|in:pending,diproses,selesai' // Sesuaikan dengan status yang kamu pakai
         ]);
 
-        // Cari data jadwal berdasarkan ID
         $jadwal = Jadwal::findOrFail($id);
 
-        // Update status
         $jadwal->status = $request->status;
         $jadwal->save();
 
-        // Redirect kembali ke halaman jadwal dengan pesan sukses
         return redirect()->route('jadwal.index')->with('success', 'Status berhasil diperbarui.');
     }
 

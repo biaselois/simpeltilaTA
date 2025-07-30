@@ -49,5 +49,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Jadwal::class, 'jadwal_petugas');
     }
+    public function signature()
+{
+    return $this->hasOne(Signature::class);
+}
+
 
 }

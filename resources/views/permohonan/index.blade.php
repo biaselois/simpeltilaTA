@@ -84,7 +84,7 @@
                                                     @if (Str::startsWith($d->dokumen, ['http://', 'https://']))
                                                         <a href="{{ $d->dokumen }}" target="_blank">Lihat Dokumen</a>
                                                     @else
-                                                        <a href="{{ asset('dokumen/' . $d->dokumen) }}"
+                                                        <a href="{{ asset('storage/dokumen/' . $d->dokumen) }}"
                                                             target="_blank">Lihat Dokumen</a>
                                                     @endif
                                                 </td>

@@ -171,7 +171,7 @@
             </a>
           </li>
           @auth
-          @if (auth()->user()->role === 'kasi')
+          @if  (auth()->user()->role === 'kabid' || auth()->user()->role === 'kasi')
           <li class="nav-item">
             <a href="{{ route('signature.index') }}" class="nav-link {{ request()->routeIs('signature.*') ? 'active' : '' }}">
               <i class="nav-icon fas fa-signature" ></i>

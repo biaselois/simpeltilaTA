@@ -85,7 +85,7 @@ Route::post('/permohonan/import', [PermohonanController::class, 'import'])->name
     Route::get('/signature/create', [SignatureController::class, 'create'])->name('signature.create');
     Route::post('/signature/store', [SignatureController::class, 'store'])->name('signature.store');
     Route::get('signature/edit/{id}', [SignatureController::class, 'edit'])->name('signature.edit');
-    Route::put('/signature/{id}', [SignatureController::class, 'update'])->name('signature.update');
+Route::put('/signature/update/{id}', [SignatureController::class, 'update']);
     Route::delete('signature/delete/{id}', [SignatureController::class, 'delete'])->name('signature.delete');
 
     // Berita Acara

@@ -61,15 +61,13 @@ class BeritaAcaraController extends Controller
             }
 
             $fileName = $request->file('dokumentasi')->store('dokumentasi', 'public');
-            $base64 = $request->input('Signature_WP');
 
+            $base64 = $request->input('Signature_WP');
             $image = base64_decode(explode(',', $base64)[1]);
 
             $filename = uniqid() . '_signature.png';
             $path = storage_path('app/public/ttd_wp/' . $filename);
-            if (!is_dir(dirname($path))) {
-                mkdir(dirname($path), 0777, true);
-            }
+
             file_put_contents($path, $image);
 
             BeritaAcara::create([
@@ -144,18 +142,9 @@ class BeritaAcaraController extends Controller
         return view('berita-acara.show', compact('data'));
     }
 
-    public function validateKasi($id)
-    {
-        $ba = BeritaAcara::findOrFail($id);
-        $ba->Validasi_Kasi = 'validated_kasi_signature.png';
-        $ba->save();
-
-        return back()->with('success', 'Validasi Kasi berhasil.');
-    }
-
     public function exportPDF($id)
     {
-            \Carbon\Carbon::setLocale('id');
+        \Carbon\Carbon::setLocale('id');
 
     $beritaAcara = BeritaAcara::with('jadwal')->findOrFail($id);
      $beritaAcara->tanggal_formatted = \Carbon\Carbon::parse($beritaAcara->tanggal)->translatedFormat('d F Y');
@@ -173,8 +162,6 @@ class BeritaAcaraController extends Controller
 
 
 
-        $kasi = User::where('role', 'kasi')->first();
-        $kabid = User::where('role', 'kabid')->first();
 
         $logoPath = public_path('images/logo.png');
         $type = pathinfo($logoPath, PATHINFO_EXTENSION);
@@ -199,26 +186,29 @@ class BeritaAcaraController extends Controller
         }
         //  dd($base64Ttd);
         // TTD Kasi jika validasi
+          $kasi = User::where('role', 'kasi')->with('signature')->first();
+        $kabid = User::where('role', 'kabid')->with('signature')->first();
+
         $base64TtdKasi = null;
-        if ($beritaAcara->Validasi_Kasi == 'validasi') {
-            $ttdKasiPath = public_path('images/ttdkasi.png');
-            if (file_exists($ttdKasiPath)) {
-                $typeTtdKasi = pathinfo($ttdKasiPath, PATHINFO_EXTENSION);
-                $dataTtdKasi = file_get_contents($ttdKasiPath);
-                $base64TtdKasi = 'data:image/' . $typeTtdKasi . ';base64,' . base64_encode($dataTtdKasi);
-            }
-        }
+if ($beritaAcara->Validasi_Kasi == 'validasi' && $kasi && $kasi->signature && $kasi->signature->ttd) {
+    $ttdKasiPath = public_path('storage/' . $kasi->signature->ttd);
+    if (file_exists($ttdKasiPath)) {
+        $typeTtdKasi = pathinfo($ttdKasiPath, PATHINFO_EXTENSION);
+        $dataTtdKasi = file_get_contents($ttdKasiPath);
+        $base64TtdKasi = 'data:image/' . $typeTtdKasi . ';base64,' . base64_encode($dataTtdKasi);
+    }
+}
 
         // TTD Kabid jika validasi
-        $base64TtdKabid = null;
-        if ($beritaAcara->Validasi_Kabid == 'validasi') {
-            $ttdKabidPath = public_path('images/ttdkabid.png');
-            if (file_exists($ttdKabidPath)) {
-                $typeTtdKabid = pathinfo($ttdKabidPath, PATHINFO_EXTENSION);
-                $dataTtdKabid = file_get_contents($ttdKabidPath);
-                $base64TtdKabid = 'data:image/' . $typeTtdKabid . ';base64,' . base64_encode($dataTtdKabid);
-            }
-        }
+       $base64TtdKabid = null;
+if ($beritaAcara->Validasi_Kabid == 'validasi' && $kabid && $kabid->signature && $kabid->signature->ttd) {
+    $ttdKabidPath = public_path('storage/' . $kabid->signature->ttd);
+    if (file_exists($ttdKabidPath)) {
+        $typeTtdKabid = pathinfo($ttdKabidPath, PATHINFO_EXTENSION);
+        $dataTtdKabid = file_get_contents($ttdKabidPath);
+        $base64TtdKabid = 'data:image/' . $typeTtdKabid . ';base64,' . base64_encode($dataTtdKabid);
+    }
+}
 
 
         $pdf = Pdf::loadView('berita-acara.pdf', [
@@ -238,13 +228,8 @@ class BeritaAcaraController extends Controller
     public function validasiKasi($id)
     {
         $berita = BeritaAcara::findOrFail($id);
-
-        // Hanya role kasi yang boleh validasi
         if (Auth::user()->role != 'kasi') {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses validasi.');
         }
-
-        // Update status validasi kasi
         $berita->Validasi_Kasi = 'validasi';
         $berita->save();
 
@@ -254,11 +239,8 @@ class BeritaAcaraController extends Controller
     public function validasiKabid($id)
     {
         $berita = BeritaAcara::findOrFail($id);
-
         if (Auth::user()->role != 'kabid') {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses validasi.');
         }
-
         $berita->Validasi_Kabid = 'validasi';
         $berita->save();
 

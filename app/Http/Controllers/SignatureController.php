@@ -15,6 +15,20 @@ class SignatureController extends Controller
         $users = User::whereIn('role', ['kasi', 'kabid'])->get();
         return view('signature.index', compact('signatures', 'users'));
     }
+public function create()
+{
+    $authUser = auth()->user();
+
+    // Jika bukan superadmin, hanya tampilkan user yang sedang login
+    if ($authUser->role !== 'superadmin') {
+        $users = \App\Models\User::where('id', $authUser->id)->get();
+    } else {
+        // Superadmin bisa pilih semua user
+        $users = \App\Models\User::all();
+    }
+
+    return view('signature.index', compact('users'));
+}
 
     public function store(Request $request)
     {
@@ -45,7 +59,7 @@ class SignatureController extends Controller
     {
         $signature = Signature::findOrFail($id);
         $users = User::all();
-        return view('signature.edit', compact('signature', 'users'));
+        return view('signature.index', compact('signature', 'users'));
     }
 
     public function update(Request $request, $id)

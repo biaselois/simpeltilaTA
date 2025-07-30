@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Permohonan;
 use App\Imports\PermohonanImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
+
+
 
 class PermohonanController extends Controller
 {
@@ -36,15 +40,23 @@ class PermohonanController extends Controller
         return view('permohonan.index', compact('data'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('permohonan.create');
+    $lastNumber = Permohonan::max('id') ?? 0;
+    $nextNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT); // 0001, 0002, dst
+    $tahun = Carbon::now()->year;
+    $tujuanText ='tujuan';
+
+    $nomorSurat = $nextNumber . '/' . $tujuanText . '/PBB-P2/BAPENDA/' . $tahun;
+
+        return view('permohonan.create', compact('nomorSurat'));
+
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nomordokumen'  => 'required',
+            // 'nomordokumen'  => 'required',
             'nama_wp'       => 'required',
             'alamat_wp'     => 'required',
             'nop'           => 'required',
@@ -53,15 +65,21 @@ class PermohonanController extends Controller
             'tujuan_lainnya' => 'required_if:tujuan,Lainnya',
             'dokumen'       => 'required|mimes:pdf|max:2048',
         ]);
+         $lastNumber = Permohonan::max('id') ?? 0;
+    $nextNumber = $lastNumber + 1;
+    $tahun = Carbon::now()->year;
+    $tujuanText = $request->tujuan === 'Lainnya' ? $request->tujuan_lainnya : $request->tujuan;
+    $nomorSurat = $nextNumber . '/' . $tujuanText . '/PBB-P2/BAPENDA/' . $tahun;
+
 
         $file = $request->file('dokumen');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $file->move(public_path('dokumen'), $filename);
+        $file->storeAs('public/dokumen', $filename);
 
         $tujuan = $request->tujuan === 'Lainnya' ? $request->tujuan_lainnya : $request->tujuan;
 
         Permohonan::create([
-            'nomordokumen'  => $request->nomordokumen,
+            'nomordokumen'  => $nomorSurat,
             'nama_wp'       => $request->nama_wp,
             'alamat_wp'     => $request->alamat_wp,
             'nop'           => $request->nop,
@@ -96,13 +114,13 @@ class PermohonanController extends Controller
 
         // Hapus file lama jika ada file baru
         if ($request->hasFile('dokumen')) {
-            if (file_exists(public_path('dokumen/' . $data->dokumen))) {
-                unlink(public_path('dokumen/' . $data->dokumen));
+            if ($data->dokumen && Storage::exists('public/dokumen/' . $data->dokumen)) {
+                Storage::delete('public/dokumen/' . $data->dokumen);
             }
 
             $file = $request->file('dokumen');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('dokumen'), $filename);
+            $file->storeAs('public/dokumen', $filename);
             $data->dokumen = $filename;
         }
         $tujuan = $request->tujuan === 'Lainnya' ? $request->tujuan_lainnya : $request->tujuan;
@@ -122,9 +140,9 @@ class PermohonanController extends Controller
 {
     $data = Permohonan::findOrFail($id);
 
-    if ($data->dokumen && file_exists(public_path('dokumen/' . $data->dokumen))) {
-        unlink(public_path('dokumen/' . $data->dokumen));
-    }
+      if ($data->dokumen && Storage::exists('public/dokumen/' . $data->dokumen)) {
+            Storage::delete('public/dokumen/' . $data->dokumen);
+        }
 
     $data->delete();
 
@@ -140,14 +158,14 @@ public function import(Request $request)
     ]);
 
     try {
-        // proses import
+
         Excel::import(new PermohonanImport, $request->file('file'));
 
         return redirect()->back()->with('success', 'Import data berhasil.');
 
     } catch(\Illuminate\Database\QueryException $e) {
 
-        if ($e->getCode() == 23000) { // 23000 = integrity constraint violation
+        if ($e->getCode() == 23000) {
             return redirect()->back()->with('error', 'Id tidak boleh sama (duplikat).');
         } else {
             return redirect()->back()->with('error', 'Terjadi kesalahan saat import');
